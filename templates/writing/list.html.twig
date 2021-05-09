@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello WritingController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <h1> Liste des histoires </h1>
+
+    {% for story in writing %}
+        <div class="col-sm-4 portfolio-item">
+            <a href="#{{ story.id }}" class="portfolio-link" data-toggle="modal">
+                {% if story.user == app.user.id %}
+                    <img src="{{ asset('img/book.svg') }}" class="img-responsive img-centered cursor" alt="">
+                {% else %}
+                    <img src="{{ asset('img/book.png') }}" class="img-responsive img-centered cursor" alt="">
+                {% endif %}
+            </a>
+            <div class="text-center">{{ story.title}}</div>
+        </div>
+
+        <div class="example-wrapper modal fade" id="{{ story.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-4 col-lg-offset-2">
+                            <div class="modal-body">
+                                {% if story.user == app.user.id %}
+                                    {% set formObject = form.createView %}
+                                    {{ form_start(formObject) }}
+                                    {{ form_row(formObject.id, {'value' : story.id}) }}
+                                    <h2>{{ form_row(formObject.title, {'value' : story.title}) }}</h2>
+                                    <hr>
+                                    <p>{{ form_row(formObject.content, {'value' : story.content}) }}</p>
+                                    <hr>
+                                    <a href="{{ path('writing.delete', {'userId': story.user , 'storyId' : story.id}) }}">
+                                    <input type="button" value="Supprimer" onclick="confirm('Confirmer la suppression ?')">
+                                    </a>
+                                    <input type="submit">
+                                    {{ form_end(formObject) }}
+                                {% else %}
+                                    <h2>{{ story.title }}</h2>
+                                    <hr>
+                                    <p>{{ story.content|raw }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ tinymce_init() }}
+    <!-- jQuery -->
+    <script src="{{ asset('js/jquery.js') }}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{{ asset('js/bootstrap.js') }}"></script>
+
+{% endblock %}
+
