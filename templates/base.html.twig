@@ -110,6 +110,7 @@
 
 		</ul>
 	</div><!--/.sidebar-->
+
 	<div class="example-wrapper">
 		{% for label, messages in app.flashes %}
 			{% for message in messages %}
@@ -120,7 +121,13 @@
 		{% endfor %}
 	</div>
         {% block body %}
-
 		{% endblock %}
+	<!--/.footer-->
+	<div class="row">
+		<div class="col-sm-12">
+			<p class="back-link">&copy; Copyright 2021 by Alex LYS</p>
+		</div>
+	</div>
+	<!--/.footer-->
     </body>
 </html>
