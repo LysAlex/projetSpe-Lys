@@ -34,6 +34,11 @@ class User implements UserInterface, \Serializable
     private $email;
 
     /**
+     * @ORM\Column(type="string", length=254)
+     */
+    private $role;
+
+    /**
      * @ORM\Column(name="is_active", type="boolean")
      */
     private $isActive;
@@ -74,6 +79,14 @@ class User implements UserInterface, \Serializable
         return $this->password;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getRole()
+    {
+        return $this->role;
+    }
+
     public function setPassword(string $password): self
     {
         $this->password = $password;
@@ -84,6 +97,16 @@ class User implements UserInterface, \Serializable
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $role
+     */
+    public function setRole($role): self
+    {
+        $this->role = $role;
 
         return $this;
     }
