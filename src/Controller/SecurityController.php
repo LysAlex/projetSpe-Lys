@@ -58,7 +58,7 @@ class SecurityController extends AbstractController
             $form->get('password')->getData()
             ));
             $user->setUsername($form->get('username')->getData());
-            $user->getRoles();
+            $user->setRole('user');
             $user->setIsActive(1);
             $entityManager->persist($user);
             $entityManager->flush();
