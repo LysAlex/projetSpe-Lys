@@ -30,9 +30,10 @@ DB_PASSWORD=
 
 ### Migration
 
-Pour la récupération de la base de données, il faut taper la commande suivante  :
+Pour la récupération de la base de données, il faut taper les commandes suivantes  :
 
 ```bash
+ php bin/console make:migration
  php bin/console doctrine:migrations:migrate
 ```
 
