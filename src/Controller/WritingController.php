@@ -47,8 +47,8 @@ class WritingController extends AbstractController
 
      /**
      * @Route("/writing/list", name="writing.list")
-     * @Route("/writing/list/{userId}", name="writing.list_user", requirements={"userId"="[0-9+]"})
-     * @Route("/writing/list/{userId}/{storyId}", name="writing.delete", requirements={"userId"="[0-9+]","storyId"="[0-9+]"})
+     * @Route("/writing/list/{userId}", name="writing.list_user", requirements={"userId"="[0-9]+"})
+     * @Route("/writing/list/{userId}/{storyId}", name="writing.delete", requirements={"userId"="[0-9]+","storyId"="[0-9]+"})
      */
     public function list($userId = null, $storyId = null, EntityManagerInterface $em, Request $request): Response
     {
