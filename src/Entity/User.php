@@ -82,6 +82,14 @@ class User implements UserInterface, \Serializable
     /**
      * @return mixed
      */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getRole()
     {
         return $this->role;
@@ -120,7 +128,11 @@ class User implements UserInterface, \Serializable
 
     public function getRoles()
     {
-        return array('ROLE_USER');
+        if ($this->role == 'admin'){
+            return array('ROLE_ADMIN');
+        } else {
+            return array('ROLE_USER');
+        }
     }
 
     public function eraseCredentials()
