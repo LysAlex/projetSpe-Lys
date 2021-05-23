@@ -44,7 +44,7 @@
                                     <p>{{ form_row(formObject.content, {'value' : story.content}) }}</p>
                                     <hr>
                                     <a href="{{ path('writing.delete', {'userId': story.user , 'storyId' : story.id}) }}">
-                                    <input type="button" value="Supprimer" onclick="confirm('Confirmer la suppression ?')">
+                                    <input type="button" value="Supprimer" onclick="return confirm('Confirmer la suppression ?')">
                                     </a>
                                     <input type="submit">
                                     {{ form_end(formObject) }}
