@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello LoginController!{% endblock %}
+{% block title %}Dashboard Admin{% endblock %}
 
 {% block body %}
 <style>
@@ -9,45 +9,48 @@
 </style>
 
 <div class="example-wrapper">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+    <h1>Gestion des utilisateurs</h1>
+    <h2>Liste des utilisateurs</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+    {% for user in users %}
+        <thead>
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td align="center">{% if user.role == 'user' %}<a href="{{ path('admin.delete_user', {'userId' : user.id}) }}" onclick="return confirm('Confirmer la suppression ?')"><i class="fa fa-trash" title="Supprimer l'utisateur"></i></a>{% endif %}</td>
+        </tr>
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
-        </div>
-    {% endif %}
+    {% endfor %}
+    </table>
+    <h2>Liste des histoires</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Titre</th>
+            <th>Auteur</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        {% for writing in writings %}
+        <thead>
+        <tr>
+            <td>{{ writing.id }}</td>
+            <td>{{ writing.title }}</td>
+            <td>{{ writing.username }}</td>
+            <td align="center"><a href="{{ path('admin.delete_writing', {'storyId' : writing.id}) }}" onclick="return confirm('Confirmer la suppression ?')"><i class="fa fa-trash" title="Supprimer l'histoire"></i></a></td>
+        </tr>
 
-    <form method="post">
-        {% if error %}
-            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-        {% endif %}
-
-        {% if app.user %}
-            <div class="mb-3">
-                You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
-            </div>
-        {% endif %}
-
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-        <div>
-            <label for="inputUsername">Username</label>
-            <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control" required autofocus>
-        </div>
-        <div>
-            <label for="inputPassword">Password</label>
-            <input type="password" name="password" id="inputPassword" class="form-control" required>
-
-            <input type="hidden" name="_csrf_token"
-                value="{{ csrf_token('authenticate') }}"
-            >
-        </div>
-        <div>
-            <button class="btn btn-lg btn-primary" type="submit">
-                Sign in
-            </button>
-        </div>
-    </form>
+        {% endfor %}
+    </table>
 </div>
 {% endblock %}
