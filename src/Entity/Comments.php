@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\WritingRepository;
+use App\Repository\CommentsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=WritingRepository::class)
+ * @ORM\Entity(repositoryClass=CommentsRepository::class)
  */
-class Writing
+class Comments
 {
     /**
      * @ORM\Id
@@ -18,14 +18,15 @@ class Writing
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="user")
+     * @ORM\Column(type="integer")
      */
-    private $title;
+    private $userId;
 
     /**
      * @ORM\Column(type="text")
      */
-    private $content;
+    private $commentaire;
 
     /**
      * @ORM\Column(type="datetime")
@@ -33,60 +34,84 @@ class Writing
     private $updateDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="user")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Writing", inversedBy="writing")
      * @ORM\Column(type="integer")
      */
-    private $user;
+    private $writing;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    /**
+     * @return mixed
+     */
+    public function getUserId()
     {
-        return $this->title;
+        return $this->userId;
     }
 
-    public function setTitle(string $title): self
+    /**
+     * @param mixed $userId
+     */
+    public function setUserId($userId): self
     {
-        $this->title = $title;
+        $this->userId = $userId;
 
         return $this;
     }
 
-    public function getContent(): ?string
+    /**
+     * @return mixed
+     */
+    public function getCommentaire()
     {
-        return $this->content;
+        return $this->commentaire;
     }
 
-    public function setContent(string $content): self
+    /**
+     * @param mixed $commentaire
+     */
+    public function setCommentaire($commentaire): self
     {
-        $this->content = $content;
+        $this->commentaire = $commentaire;
 
         return $this;
     }
 
-    public function getUpdateDate(): ?\DateTimeInterface
+    /**
+     * @return mixed
+     */
+    public function getUpdateDate()
     {
         return $this->updateDate;
     }
 
-    public function setUpdateDate(\DateTimeInterface $updateDate): self
+    /**
+     * @param mixed $updateDate
+     */
+    public function setUpdateDate($updateDate): self
     {
         $this->updateDate = $updateDate;
 
         return $this;
     }
 
-    public function getUser(): ?int
+    /**
+     * @return mixed
+     */
+    public function getWriting()
     {
-        return $this->user;
+        return $this->writing;
     }
 
-    public function setUser(?int $user): self
+    /**
+     * @param mixed $writing
+     */
+    public function setWriting($writing): self
     {
-        $this->user = $user;
+        $this->writing = $writing;
 
         return $this;
     }
