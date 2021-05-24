@@ -27,7 +27,7 @@
 				<a class="navbar-brand" href="#"><span>Story</span>Sharing</a>
 				<ul class="nav navbar-top-links navbar-right">
 					<li class="dropdown"><a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-						<em class="fa fa-envelope"></em><span class="label label-danger">15</span>
+						<em class="fa fa-bell"></em><span class="label label-danger">15</span>
 					</a>
 						<ul class="dropdown-menu dropdown-messages">
 							<li>
@@ -57,26 +57,6 @@
 							</li>
 						</ul>
 					</li>
-					<li class="dropdown"><a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-						<em class="fa fa-bell"></em><span class="label label-info">5</span>
-					</a>
-						<ul class="dropdown-menu dropdown-alerts">
-							<li><a href="#">
-								<div><em class="fa fa-envelope"></em> 1 New Message
-									<span class="pull-right text-muted small">3 mins ago</span></div>
-							</a></li>
-							<li class="divider"></li>
-							<li><a href="#">
-								<div><em class="fa fa-heart"></em> 12 New Likes
-									<span class="pull-right text-muted small">4 mins ago</span></div>
-							</a></li>
-							<li class="divider"></li>
-							<li><a href="#">
-								<div><em class="fa fa-user"></em> 5 New Followers
-									<span class="pull-right text-muted small">4 mins ago</span></div>
-							</a></li>
-						</ul>
-					</li>
 				</ul>
 			</div>
 		</div><!-- /.container-fluid -->
@@ -86,11 +66,12 @@
 		{% if app.user is not null %}
 		<div class="profile-sidebar">
 			<div class="profile-userpic">
-				<img src="http://placehold.it/50/30a5ff/fff" class="img-responsive" alt="">
+				<img src="{{ asset('uploads/image') }}/{{ app.user.image }}" class="img-responsive" alt="">
 			</div>
 			<div class="profile-usertitle">
 				<div class="profile-usertitle-name">{{ app.user.username }}</div>
 				<div class="profile-usertitle-status"><span class="indicator label-success"></span>Online</div>
+				<div class="profile-usertitle-status"><a href="{{ path('writing.profile', {'userId' : app.user.id}) }}">Editer son profil</a></div>
 			</div>
 			<div class="clear"></div>
 		</div>
