@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Comments;
 use App\Entity\User;
 use App\Entity\Writing;
+use App\Form\CommentType;
 use App\Form\RegisterType;
 use App\Form\WritingType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -55,12 +57,15 @@ class WritingController extends AbstractController
      * @Route("/writing/list", name="writing.list")
      * @Route("/writing/list/{userId}", name="writing.list_user", requirements={"userId"="[0-9]+"})
      * @Route("/writing/list/{userId}/{storyId}", name="writing.delete", requirements={"userId"="[0-9]+","storyId"="[0-9]+"})
+     * @Route("/writing/comment/{commentId}", name="writing.comment_delete", requirements={"storyId"="[0-9]+", "commentId"="[0-9]+"})
      */
-    public function list($userId = null, $storyId = null, EntityManagerInterface $em, Request $request): Response
+    public function list($userId = null, $storyId = null, $commentId = null, EntityManagerInterface $em, Request $request): Response
     {
 
         // Récupération du repo Writing
         $this->writingRepo = $this->getDoctrine()->getRepository(Writing::class);
+        $this->commentsRepo = $this->getDoctrine()->getRepository(Comments::class);
+        $this->usersRepo = $this->getDoctrine()->getRepository(User::class);
 
         // Condition qui permet de récupérer toutes les histoires ou seulement les histoires de l'utilisateur
         if ($userId == $this->getUser()->getId()){
@@ -79,9 +84,31 @@ class WritingController extends AbstractController
             $writing = $this->writingRepo->findAll();
         }
 
+        // Condition qui permet de supprimer un commentaire
+        if ($commentId) {
+            $comment = $this->commentsRepo->find($commentId);
+            if ($comment->getUserId() == $this->getUser()->getId()){
+                $em->remove($comment);
+                $em->flush();
+                $this->addFlash('success', 'Votre commentaire a été supprimé.');
+                return $this->redirectToRoute('writing.list');
+            }
+        }
+
+        foreach ($writing as $key => $value){
+            $writing[$key]->comments = $this->commentsRepo->findBy(['writing' => $value->getId()]);
+            foreach ($writing[$key]->comments as $keyComment => $valueComment){
+                $username = $this->usersRepo->find($valueComment->getUserId());
+                $writing[$key]->comments[$keyComment]->username = $username->getUsername();
+            }
+        }
+
         // Initialisation du formulaire
         $form = $this->createForm(WritingType::class);
         $form->handleRequest($request);
+
+        $formComment = $this->createForm(CommentType::class);
+        $formComment->handleRequest($request);
 
 
         // Soumission et validation du formulaire
@@ -100,9 +127,27 @@ class WritingController extends AbstractController
             return $this->redirectToRoute('writing.list');
         }
 
+        // Soumission et validation du formulaire
+        if ($formComment->isSubmitted() && $formComment->isValid()){
+
+            // Ajout du commentaire
+            $comment = new Comments();
+            $comment->setUserId($formComment->get('userId')->getData());
+            $comment->setCommentaire($formComment->get('commentaire')->getData());
+            $comment->setUpdateDate(new \DateTime());
+            $comment->setWriting($formComment->get('writing')->getData());
+            $em->persist($comment);
+            $em->flush($comment);
+
+            // Message de validation + redirection
+            $this->addFlash('success', 'Commentaire ajouté');
+            return $this->redirectToRoute('writing.list');
+        }
+
         return $this->render('writing/list.html.twig', [
             'writing' => $writing??null,
             'form' => $form??null,
+            'formComment' => $formComment->createView()??null,
             'userId' => $userId??null,
         ]);
     }
