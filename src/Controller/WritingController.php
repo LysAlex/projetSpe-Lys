@@ -130,12 +130,13 @@ class WritingController extends AbstractController
                 // Vérifie si une image est présente
                 if ($imageFile) {
                     $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+
                     // this is needed to safely include the file name as part of the URL
                     $safeFilename = $slugger->slug($originalFilename);
                     $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
 
 
-                    // Move the file to the directory where brochures are stored
+                    // Move the file to the directory where images are stored
                     try {
                         $imageFile->move(
                             $this->getParameter('profile_image'),
@@ -143,9 +144,11 @@ class WritingController extends AbstractController
                         );
                     } catch (FileException $e) {
                         // ... handle exception if something happens during file upload
+                        $this->addFlash('error', 'Problème durant le chargement du fichier.');
+                        return $this->redirectToRoute('writing.profile', ['userId' => $userId]);
                     }
 
-                    // updates the 'brochureFilename' property to store the PDF file name
+                    // updates the 'imageFilename' property to store the Image file name
                     // instead of its contents
                     $user->setImage($newFilename);
                 }
@@ -157,7 +160,7 @@ class WritingController extends AbstractController
                 $user->setUsername($form->get('username')->getData());
                 $entityManager->persist($user);
                 $entityManager->flush();
-                // ... persist the $product variable or any other work
+                // ... persist the $user variable or any other work
                 $this->addFlash('success', 'Votre profil a bien été modifié.');
                 return $this->redirectToRoute('writing.profile', ['userId' => $userId]);
             }
