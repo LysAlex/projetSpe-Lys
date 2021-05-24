@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Writing;
+use App\Entity\Comments;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -13,20 +13,23 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class WritingType extends AbstractType
+class CommentType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('id', HiddenType::class)
-            ->add('title', TextType::class, [
+            ->add('userId', HiddenType::class, [
                 'label' => false,
             ])
-            ->add('content', TextareaType::class, [
+            ->add('writing', HiddenType::class, [
+                'label' => false,
+            ])
+            ->add('commentaire', TextareaType::class, [
                 'label' => false,
                 'attr' => [
                     'class' => 'tinymce']
             ]);
+
     }
 
     public function configureOptions(OptionsResolver $resolver)
