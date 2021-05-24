@@ -55,6 +55,11 @@ class AdminController extends AbstractController
 
         if ($route == 'admin.delete_user'){
             $user = $this->userRepo->find($userId);
+            $writing = $this->writingRepo->findBy(['user' => $user->getId()]);
+            foreach ($writing as $value){
+                $em->remove($value);
+                $em->flush();
+            }
             $em->remove($user);
             $em->flush();
             $this->addFlash('success', 'L\'utilisateur a été supprimé.');
