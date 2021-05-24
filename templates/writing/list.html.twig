@@ -53,6 +53,29 @@
                                     <hr>
                                     <p>{{ story.content|raw }}</p>
                                 {% endif %}
+                                <hr>
+                                <h2>Ajouter un commentaire</h2>
+                                {{ form_start(formComment) }}
+                                {{ form_row(formComment.userId, {'value' : app.user.id}) }}
+                                {{ form_row(formComment.writing, {'value' : story.id}) }}
+                                <p>{{ form_row(formComment.commentaire) }}</p>
+                                <input type="submit">
+                                {{ form_end(formComment) }}
+
+                                <h2>Liste des commentaires</h2>
+                                {% if story.comments is defined %}
+                                    {% for comments in story.comments %}
+                                        <div>
+                                        <p>{{ comments.commentaire|raw }}</p>
+                                            <p>Le {{ comments.updateDate|date('d/m/Y à H:i') }} par {{ comments.username }}
+                                                {% if comments.userId == app.user.id %}
+                                                <a href="{{ path('writing.comment_delete', {'commentId' : comments.id}) }}" value="Supprimer" onclick="return confirm('Confirmer la suppression ?')">Supprimer son commentaire</a>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+
                             </div>
                         </div>
                     </div>
