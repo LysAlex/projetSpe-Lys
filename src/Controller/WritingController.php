@@ -2,13 +2,19 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Entity\Writing;
+use App\Form\RegisterType;
 use App\Form\WritingType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class WritingController extends AbstractController
 {
@@ -98,6 +104,68 @@ class WritingController extends AbstractController
             'writing' => $writing??null,
             'form' => $form??null,
             'userId' => $userId??null,
+        ]);
+    }
+
+    /**
+     * @Route("/writing/profile/{userId}", name="writing.profile", requirements={"userId"="[0-9]+"})
+     */
+    public function profile($userId = null, EntityManagerInterface $entityManager, UserPasswordEncoderInterface $passwordEncoder, Request $request, SluggerInterface $slugger): Response
+    {
+        // Recupération des repository
+        $this->userRepo = $this->getDoctrine()->getRepository(User::class);
+
+        // Condition qui permet de récupérer toutes les histoires ou seulement les histoires de l'utilisateur
+        if ($userId == $this->getUser()->getId()) {
+            $user = $this->userRepo->find($userId);
+
+            // Initialisation du formulaire
+            $form = $this->createForm(RegisterType::class, $user);
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()){
+                /** @var UploadedFile $imageFile */
+                $imageFile = $form->get('image')->getData();
+
+                // Vérifie si une image est présente
+                if ($imageFile) {
+                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    // this is needed to safely include the file name as part of the URL
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+
+                    // Move the file to the directory where brochures are stored
+                    try {
+                        $imageFile->move(
+                            $this->getParameter('profile_image'),
+                            $newFilename
+                        );
+                    } catch (FileException $e) {
+                        // ... handle exception if something happens during file upload
+                    }
+
+                    // updates the 'brochureFilename' property to store the PDF file name
+                    // instead of its contents
+                    $user->setImage($newFilename);
+                }
+                $user->setEmail($form->get('email')->getData());
+                $user->setPassword($passwordEncoder->encodePassword(
+                    $user,
+                    $form->get('password')->getData()
+                ));
+                $user->setUsername($form->get('username')->getData());
+                $entityManager->persist($user);
+                $entityManager->flush();
+                // ... persist the $product variable or any other work
+                $this->addFlash('success', 'Votre profil a bien été modifié.');
+                return $this->redirectToRoute('writing.profile', ['userId' => $userId]);
+            }
+        }
+
+        return $this->render('writing/profile.html.twig', [
+            'user' => $user??null,
+            'form' => $form->createView()??null,
         ]);
     }
 }
