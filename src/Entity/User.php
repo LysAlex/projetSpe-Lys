@@ -36,6 +36,11 @@ class User implements UserInterface, \Serializable
     /**
      * @ORM\Column(type="string", length=254)
      */
+    private $image;
+
+    /**
+     * @ORM\Column(type="string", length=254)
+     */
     private $role;
 
     /**
@@ -90,6 +95,14 @@ class User implements UserInterface, \Serializable
     /**
      * @return mixed
      */
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getRole()
     {
         return $this->role;
@@ -105,6 +118,16 @@ class User implements UserInterface, \Serializable
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $image
+     */
+    public function setImage(string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }
