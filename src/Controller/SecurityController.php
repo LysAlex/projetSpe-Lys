@@ -2,14 +2,18 @@
 
 namespace App\Controller;
 
+use App\Entity\Notifications;
 use App\Entity\User;
 use App\Form\RegisterType;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class SecurityController extends AbstractController
 {
@@ -41,11 +45,13 @@ class SecurityController extends AbstractController
     /**
      * @Route("/register", name="register")
      */
-    public function register(UserPasswordEncoderInterface $passwordEncoder, Request $request, AuthenticationUtils $authenticationUtils)
+    public function register(UserPasswordEncoderInterface $passwordEncoder, SluggerInterface $slugger, Request $request, AuthenticationUtils $authenticationUtils)
     {
         // Retrieve the entity manager
         $entityManager = $this->getDoctrine()->getManager();
-        
+        $this->notificationRepo = $this->getDoctrine()->getRepository(Notifications::class);
+        $this->userRepo = $this->getDoctrine()->getRepository(User::class);
+
         // Create a new user with random data
         $form =$this->createForm(RegisterType::class);
         $form->handleRequest($request);
@@ -58,11 +64,49 @@ class SecurityController extends AbstractController
             $form->get('password')->getData()
             ));
             $user->setUsername($form->get('username')->getData());
+            /** @var UploadedFile $imageFile */
+            $imageFile = $form->get('image')->getData();
+
+            // Vérifie si une image est présente
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+
+                // this is needed to safely include the file name as part of the URL
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+
+                // Move the file to the directory where images are stored
+                try {
+                    $imageFile->move(
+                        $this->getParameter('profile_image'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    // ... handle exception if something happens during file upload
+                    $this->addFlash('error', 'Problème durant le chargement du fichier.');
+                    return $this->redirectToRoute('writing.profile', ['userId' => $userId]);
+                }
+
+                // updates the 'imageFilename' property to store the Image file name
+                // instead of its contents
+                $user->setImage($newFilename);
+            }
             $user->setRole('user');
             $user->setIsActive(1);
             $entityManager->persist($user);
             $entityManager->flush();
             $this->addFlash('success', 'Inscription réussie.');
+
+            $admin = $this->userRepo->findOneBy(['role' => 'admin']);
+
+            $notification = new Notifications();
+            $notification->setUserId($admin->getId());
+            $notification->setMessage('Le compte '.$user->getUsername().' a été crée !');
+            $notification->setUpdateDate(new \Datetime());
+            $notification->setIsRead(0);
+            $entityManager->persist($notification);
+            $entityManager->flush();
 
             // get the login error if there is one
             $error = $authenticationUtils->getLastAuthenticationError();
