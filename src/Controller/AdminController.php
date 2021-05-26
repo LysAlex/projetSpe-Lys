@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Notifications;
 use App\Entity\User;
 use App\Entity\Writing;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,8 +22,10 @@ class AdminController extends AbstractController
         // Recupération des repository
         $this->writingRepo = $this->getDoctrine()->getRepository(Writing::class);
         $this->userRepo = $this->getDoctrine()->getRepository(User::class);
+        $this->notificationsRepo = $this->getDoctrine()->getRepository(Notifications::class);
 
-
+        // Afficher les notifications
+        $notifications = $this->notificationsRepo->findBy(['userId' => $this->getUser()->getId(), 'isRead' => 0]);
 
         $writing = $this->writingRepo->findAll();
         $user = $this->userRepo->findAll();
@@ -35,6 +38,7 @@ class AdminController extends AbstractController
         }
 
         return $this->render('admin/index.html.twig', [
+            'notifications' => $notifications??null,
             'writings' => $writing??null,
             'users' => $user??null,
         ]);
