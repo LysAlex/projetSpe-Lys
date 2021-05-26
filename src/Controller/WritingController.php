@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Comments;
+use App\Entity\Notifications;
 use App\Entity\User;
 use App\Entity\Writing;
 use App\Form\CommentType;
@@ -26,6 +27,11 @@ class WritingController extends AbstractController
      */
     public function index(EntityManagerInterface $em, Request $request): Response
     {
+        // Récupération des repository
+        $this->notificationsRepo = $this->getDoctrine()->getRepository(Notifications::class);
+
+        // Afficher les notifications
+        $notifications = $this->notificationsRepo->findBy(['userId' => $this->getUser()->getId(), 'isRead' => 0]);
 
         // Initialisation du formulaire
         $form =$this->createForm(WritingType::class);
@@ -49,6 +55,7 @@ class WritingController extends AbstractController
         }
 
         return $this->render('writing/index.html.twig', [
+            'notifications' => $notifications??null,
             'form' => $form->createView()??null,
         ]);
     }
@@ -62,10 +69,14 @@ class WritingController extends AbstractController
     public function list($userId = null, $storyId = null, $commentId = null, EntityManagerInterface $em, Request $request): Response
     {
 
-        // Récupération du repo Writing
+        // Récupération des repository
         $this->writingRepo = $this->getDoctrine()->getRepository(Writing::class);
         $this->commentsRepo = $this->getDoctrine()->getRepository(Comments::class);
         $this->usersRepo = $this->getDoctrine()->getRepository(User::class);
+        $this->notificationsRepo = $this->getDoctrine()->getRepository(Notifications::class);
+
+        // Afficher les notifications
+        $notifications = $this->notificationsRepo->findBy(['userId' => $this->getUser()->getId(), 'isRead' => 0]);
 
         // Condition qui permet de récupérer toutes les histoires ou seulement les histoires de l'utilisateur
         if ($userId == $this->getUser()->getId()){
@@ -122,6 +133,13 @@ class WritingController extends AbstractController
             $em->persist($story);
             $em->flush($story);
 
+            $notification = new Notifications();
+            $notification->setMessage($this->getUser()->getUsername().' a modifié son histoire : '.$story->getTitle());
+            $notification->setUpdateDate(new \Datetime());
+            $notification->setIsRead(0);
+            $em->persist($notification);
+            $em->flush();
+
             // Message de validation + redirection
             $this->addFlash('success', 'Mise à jour réussie');
             return $this->redirectToRoute('writing.list');
@@ -139,15 +157,27 @@ class WritingController extends AbstractController
             $em->persist($comment);
             $em->flush($comment);
 
+            $storyComment = $this->writingRepo->find($formComment->get('writing')->getData());
+            $storyCommentUser = $this->usersRepo->find($storyComment->getUser());
+
+            $notification = new Notifications();
+            $notification->setUserId($storyCommentUser->getId());
+            $notification->setMessage($this->getUser()->getUsername().' a ajouté un commentaire pour votre histoire : '.$storyComment->getTitle());
+            $notification->setUpdateDate(new \Datetime());
+            $notification->setIsRead(0);
+            $em->persist($notification);
+            $em->flush();
+
             // Message de validation + redirection
             $this->addFlash('success', 'Commentaire ajouté');
             return $this->redirectToRoute('writing.list');
         }
 
         return $this->render('writing/list.html.twig', [
+            'notifications' => $notifications??null,
             'writing' => $writing??null,
             'form' => $form??null,
-            'formComment' => $formComment->createView()??null,
+            'formCommentaire' => $formComment??null,
             'userId' => $userId??null,
         ]);
     }
@@ -159,6 +189,10 @@ class WritingController extends AbstractController
     {
         // Recupération des repository
         $this->userRepo = $this->getDoctrine()->getRepository(User::class);
+        $this->notificationsRepo = $this->getDoctrine()->getRepository(Notifications::class);
+
+        // Afficher les notifications
+        $notifications = $this->notificationsRepo->findBy(['userId' => $this->getUser()->getId(), 'isRead' => 0]);
 
         // Condition qui permet de récupérer toutes les histoires ou seulement les histoires de l'utilisateur
         if ($userId == $this->getUser()->getId()) {
@@ -168,7 +202,7 @@ class WritingController extends AbstractController
             $form = $this->createForm(RegisterType::class, $user);
             $form->handleRequest($request);
 
-            if ($form->isSubmitted() && $form->isValid()){
+            if ($form->isSubmitted() && $form->isValid()) {
                 /** @var UploadedFile $imageFile */
                 $imageFile = $form->get('image')->getData();
 
@@ -178,7 +212,7 @@ class WritingController extends AbstractController
 
                     // this is needed to safely include the file name as part of the URL
                     $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
 
                     // Move the file to the directory where images are stored
@@ -212,8 +246,30 @@ class WritingController extends AbstractController
         }
 
         return $this->render('writing/profile.html.twig', [
-            'user' => $user??null,
-            'form' => $form->createView()??null,
+            'notifications' => $notifications ?? null,
+            'user' => $user ?? null,
+            'form' => $form->createView() ?? null,
         ]);
+    }
+
+        /**
+         * @Route("/writing/notification/{notificationId}", name="writing.notification", requirements={"notificationId"="[0-9]+"})
+         */
+        public function notification($notificationId = null, EntityManagerInterface $entityManager, Request $request): Response
+        {
+        // Recupération des repository
+        $this->notificationsRepo = $this->getDoctrine()->getRepository(Notifications::class);
+
+        $routeName = $request->get('_route');
+
+        // Afficher les notifications
+        $notification = $this->notificationsRepo->find($notificationId);
+
+        // Marquer comme lu
+        $notification->setIsRead(1);
+        $entityManager->persist($notification);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('writing.list');
     }
 }
