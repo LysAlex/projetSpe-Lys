@@ -53,6 +53,7 @@
                 {% endif %}
             </a>
             <div class="text-center">{{ story.title}}</div>
+            <div class="text-center"><small>Auteur :  {{ story.username }}</small></div>
         </div>
 
         <div class="example-wrapper modal fade" id="{{ story.id }}" tabindex="-1" role="dialog" aria-hidden="true">
@@ -71,40 +72,70 @@
                                     {% set formObject = form.createView %}
                                     {{ form_start(formObject) }}
                                     {{ form_row(formObject.id, {'value' : story.id}) }}
-                                    <h2>{{ form_row(formObject.title, {'value' : story.title}) }}</h2>
+                                    <div>
+                                        <label for="inputTitle">Titre</label>
+                                        {{ form_row(formObject.title, {'value' : story.title}) }}
+                                    </div>
+                                    <div>
+                                        <label for="inputContent">Contenu</label>
+                                        {{ form_row(formObject.content, {'value' : story.content}) }}
+                                    </div>
+
                                     <hr>
-                                    <p>{{ form_row(formObject.content, {'value' : story.content}) }}</p>
-                                    <hr>
-                                    <a href="{{ path('writing.delete', {'userId': story.user , 'storyId' : story.id}) }}">
-                                    <input type="button" value="Supprimer" onclick="return confirm('Confirmer la suppression ?')">
-                                    </a>
-                                    <input type="submit">
+                                    <button type="button" class="btn btn-lg btn-danger" onclick="return confirm('Confirmer la suppression ?')">
+                                        <a style="color:white" href="{{ path('writing.delete', {'userId': story.user , 'storyId' : story.id}) }}">
+                                        Supprimer
+                                        </a>
+                                    </button>
+
+                                    <button type="submit" class="btn btn-lg btn-primary">
+                                        Modifier
+                                    </button>
+
                                     {{ form_end(formObject) }}
                                 {% else %}
-                                    <h2>{{ story.title }}</h2>
-                                    <hr>
-                                    <p>{{ story.content|raw }}</p>
+                                    <div align="center">
+                                        <h2>{{ story.title }}</h2>
+                                        <small>Auteur :  {{ story.username }}</small>
+                                    </div>
+                                    <div>
+                                        <p>{{ story.content|raw }}</p>
+                                    </div>
                                 {% endif %}
                                 <hr>
-                                <h2>Ajouter un commentaire</h2>
+                                <div>
+                                    <h2>Ajouter un commentaire</h2>
+                                </div>
+
                                 {% set formComment = formCommentaire.createView %}
                                 {{ form_start(formComment) }}
                                 {{ form_row(formComment.userId, {'value' : app.user.id}) }}
                                 {{ form_row(formComment.writing, {'value' : story.id}) }}
-                                <p>{{ form_row(formComment.commentaire) }}</p>
-                                <input type="submit">
-                                {{ form_end(formComment) }}
 
-                                <h2>Liste des commentaires</h2>
+                                <div>
+                                    <p>{{ form_row(formComment.commentaire) }}</p>
+                                </div>
+
+                                <button type="submit" class="btn btn-lg btn-primary">
+                                    Envoyer
+                                </button>
+                                {{ form_end(formComment) }}
+                                <hr>
+                                <div>
+                                    <h2>Liste des commentaires</h2>
+                                </div>
                                 {% if story.comments is defined %}
                                     {% for comments in story.comments %}
                                         <div>
-                                        <p>{{ comments.commentaire|raw }}</p>
-                                            <p>Le {{ comments.updateDate|date('d/m/Y à H:i') }} par {{ comments.username }}
+                                        <div style="border: 3px solid #A0A0A0; text-align: center;background: #FFFF00;">{{ comments.commentaire|raw }}</div>
+                                            <small>Le {{ comments.updateDate|date('d/m/Y à H:i') }} par
                                                 {% if comments.userId == app.user.id %}
-                                                <a href="{{ path('writing.comment_delete', {'commentId' : comments.id}) }}" value="Supprimer" onclick="return confirm('Confirmer la suppression ?')">Supprimer son commentaire</a>
+                                                    Vous
+                                                <a href="{{ path('writing.comment_delete', {'commentId' : comments.id}) }}" onclick="return confirm('Confirmer la suppression ?')"><i class="fa fa-close bg-red" title="Supprimer"></i></a>
+                                                {% else %}
+                                                    {{ comments.username }}
                                                 {% endif %}
-                                            </p>
+                                            </small>
                                         </div>
                                     {% endfor %}
                                 {% endif %}
