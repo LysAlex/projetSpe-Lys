@@ -33,6 +33,7 @@ class RegisterType extends AbstractType
                 'label' => false])
             ->add('image', FileType::class, [
                 'label' => false,
+                'required' => false,
                 'data_class' => null,
                 'constraints' => [
                     new File([
