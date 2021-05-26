@@ -1,5 +1,39 @@
 {% extends 'base.html.twig' %}
 
+{% block navbar %}
+    <ul class="nav navbar-top-links navbar-right">
+        <li class="dropdown">
+            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                <em class="fa fa-bell"></em><span class="label label-danger">{{ notifications|length }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-messages">
+                {% if notifications|length > 0 %}
+                    {% for notification in notifications %}
+                        <li>
+                            <div class="dropdown-messages-box">
+                                <div class="message-body">
+                                    <a href="#"><strong>{{ notification.message }}</strong></a>
+                                    <small class="pull-right"><a href="{{ path('writing.notification', {'notificationId' : notification.id}) }}">Message lu</a></small>
+                                    <br /><small class="text-muted">{{ notification.updateDate|date('d/m/y à H:i') }}</small></div>
+                            </div>
+                        </li>
+                        <li class="divider"></li>
+                    {% endfor %}
+                {% else %}
+                    <li>
+                        <div class="dropdown-messages-box">
+                            <div class="message-body" align="center">
+                                <strong>Aucune notification</strong>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="divider"></li>
+                {% endif %}
+            </ul>
+        </li>
+    </ul>
+{% endblock %}
+
 {% block body %}
 <style>
     .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
