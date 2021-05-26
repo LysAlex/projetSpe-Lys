@@ -27,7 +27,7 @@ class CommentType extends AbstractType
             ->add('commentaire', TextareaType::class, [
                 'label' => false,
                 'attr' => [
-                    'class' => 'tinymce']
+                    'rows' => 5]
             ]);
 
     }
