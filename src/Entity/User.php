@@ -125,7 +125,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param mixed $image
      */
-    public function setImage(string $image): self
+    public function setImage(?string $image): self
     {
         $this->image = $image;
 
