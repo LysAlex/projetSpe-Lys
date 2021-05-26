@@ -1,7 +1,5 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello LoginController!{% endblock %}
-
 {% block body %}
 <style>
     .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
@@ -23,6 +21,10 @@
         <div>
             <label for="inputEmail">Email</label>
             {{ form_row(form.email) }}
+        </div>
+        <div>
+            <label for="inputImage">Image de profil</label>
+            {{ form_row(form.image) }}
         </div>
         <div>
             <button class="btn btn-lg btn-primary" type="submit">
