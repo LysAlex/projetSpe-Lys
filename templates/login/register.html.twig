@@ -9,13 +9,13 @@
 <div class="example-wrapper">
 
     {{ form_start(form) }}
-        <h1 class="h3 mb-3 font-weight-normal">Please register</h1>
+        <h1 class="h3 mb-3 font-weight-normal">Veuillez vous inscrire</h1>
         <div>
             <label for="inputUsername">Username</label>
             {{ form_row(form.username) }}
         </div>
         <div>
-            <label for="inputPassword">Password</label>
+            <label for="inputPassword">Mot de passe</label>
             {{ form_row(form.password) }}
         </div>
         <div>
@@ -26,9 +26,9 @@
             <label for="inputImage">Image de profil</label>
             {{ form_row(form.image) }}
         </div>
-        <div>
+        <div class="example-wrapper">
             <button class="btn btn-lg btn-primary" type="submit">
-                Sign in
+                S'inscrire
             </button>
         </div>
     {{ form_end(form) }}
