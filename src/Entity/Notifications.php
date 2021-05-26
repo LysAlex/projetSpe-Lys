@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\CommentsRepository;
+use App\Repository\NotificationsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=CommentsRepository::class)
+ * @ORM\Entity(repositoryClass=NotificationsRepository::class)
  */
-class Comments
+class Notifications
 {
     /**
      * @ORM\Id
@@ -19,14 +19,14 @@ class Comments
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="user")
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $userId;
 
     /**
      * @ORM\Column(type="text")
      */
-    private $commentaire;
+    private $message;
 
     /**
      * @ORM\Column(type="datetime")
@@ -34,10 +34,9 @@ class Comments
     private $updateDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Writing", inversedBy="writing")
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="boolean")
      */
-    private $writing;
+    private $isRead;
 
     public function getId(): ?int
     {
@@ -65,17 +64,17 @@ class Comments
     /**
      * @return mixed
      */
-    public function getCommentaire()
+    public function getMessage()
     {
-        return $this->commentaire;
+        return $this->message;
     }
 
     /**
-     * @param mixed $commentaire
+     * @param mixed $message
      */
-    public function setCommentaire($commentaire): self
+    public function setMessage($message): self
     {
-        $this->commentaire = $commentaire;
+        $this->message = $message;
 
         return $this;
     }
@@ -101,17 +100,17 @@ class Comments
     /**
      * @return mixed
      */
-    public function getWriting()
+    public function getIsRead()
     {
-        return $this->writing;
+        return $this->isRead;
     }
 
     /**
-     * @param mixed $writing
+     * @param mixed $isRead
      */
-    public function setWriting($writing): self
+    public function setIsRead($isRead): self
     {
-        $this->writing = $writing;
+        $this->isRead = $isRead;
 
         return $this;
     }
