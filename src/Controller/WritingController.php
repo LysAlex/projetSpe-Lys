@@ -112,7 +112,8 @@ class WritingController extends AbstractController
             $writing[$key]->comments = $this->commentsRepo->findBy(['writing' => $value->getId()]);
             foreach ($writing[$key]->comments as $keyComment => $valueComment){
                 $username = $this->usersRepo->find($valueComment->getUserId());
-                $writing[$key]->comments[$keyComment]->username = $username->getUsername();
+                if ($username)
+                    $writing[$key]->comments[$keyComment]->username = $username->getUsername();
             }
         }
 
