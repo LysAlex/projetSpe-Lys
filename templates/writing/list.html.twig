@@ -133,7 +133,11 @@
                                                     Vous
                                                 <a href="{{ path('writing.comment_delete', {'commentId' : comments.id}) }}" onclick="return confirm('Confirmer la suppression ?')"><i class="fa fa-close bg-red" title="Supprimer"></i></a>
                                                 {% else %}
-                                                    {{ comments.username }}
+                                                    {% if comments.username is defined %}
+                                                        {{ comments.username }}
+                                                    {% else %}
+                                                        none
+                                                    {% endif %}
                                                 {% endif %}
                                             </small>
                                         </div>
